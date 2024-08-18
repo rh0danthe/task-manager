@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+
+  name String
+  login String @unique
+  password String
+
+  columns Column[] @relation
+  createdTaskCards TaskCard[] @relation(name: "User_CreatedTasks")
+  takenTaskCards TaskCard[] @relation(name: "User_TakenTasks")
+  comments Comment[] @relation
+}
+
+model Column {
+  id Int @id @default(autoincrement())
+
+  title String
+
+  creator User @relation(fields: [creatorId], references: [id])
+  creatorId Int @map("creator_id")
+
+  taskCards TaskCard[] @relation
+}
+
+model TaskCard {
+  id Int @id @default(autoincrement())
+
+  content String
+
+  creator User @relation(fields: [creatorId], references: [id], name: "User_CreatedTasks")
+  creatorId Int @map("creator_id")
+
+  users User[] @relation(name: "User_TakenTasks")
+
+  column Column @relation(fields: [columnId], references: [id])
+  columnId Int @map("column_id")
+
+  comments Comment[] @relation
+}
+
+model Comment {
+  id Int @id @default(autoincrement())
+
+  content String
+
+  creator User @relation(fields: [creatorId], references: [id])
+  creatorId Int @map("creator_id")
+
+  taskCard TaskCard @relation(fields: [taskcardId], references: [id])
+  taskcardId Int @map("taskcard_id")
+}
