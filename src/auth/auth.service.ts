@@ -3,7 +3,9 @@ import {UserService} from "../user/user.service";
 import {JwtService} from "@nestjs/jwt";
 import {UserSignInDto} from "./dto/user-sign-in.dto";
 import {UserRegisterDto} from "./dto/user-register.dto";
-import {UserResponseDto} from "../user/dto/user-response.dto";
+import {UserResponseDto} from "../user/dto/user-response.dto"
+import * as bcrypt from 'bcrypt'
+
 @Injectable()
 export class AuthService {
     constructor(
@@ -12,16 +14,21 @@ export class AuthService {
     ) {}
 
     async register(params:{
-        req: UserRegisterDto}
+        data: UserRegisterDto}
     ): Promise<{ access_token: string }> {
 
-        const dbUser = await this.userService.getByEmail({ email: params.req.email });
+        const { data } = params;
+
+        const dbUser = await this.userService.getByEmail({ email: data.email });
 
         if (!!dbUser) {
-            throw new BadRequestException(`User with email ${params.req.email} already exists`)
+            throw new BadRequestException(`User with email ${data.email} already exists`)
         }
 
-        const newUser = await this.userService.create({data: params.req});
+        data.password = bcrypt.hashSync(data.password, 10)
+
+
+        const newUser = await this.userService.create({data});
 
         const payload = { sub: newUser.id };
 
@@ -31,16 +38,19 @@ export class AuthService {
     };
 
     async signIn(params:{
-        req: UserSignInDto}
+        data: UserSignInDto}
     ): Promise<{ access_token: string }> {
+        const { data } = params;
 
-        const dbUser = await this.userService.getByEmail({ email: params.req.email });
+        const dbUser = await this.userService.getByEmail({ email: data.email });
 
         if (!dbUser) {
-            throw new NotFoundException(`User with email ${params.req.email} does not exist`)
+            throw new NotFoundException(`User with email ${data.email} does not exist`)
         }
 
-        if (dbUser.password !== params.req.password) {
+        const isValidPassword = await bcrypt.compare(data.password, dbUser.password)
+
+        if (!isValidPassword) {
             throw new UnauthorizedException();
         }
 

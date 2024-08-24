@@ -1,8 +1,22 @@
-import {Controller, Get, Query, Post, Body, Put, Param, Delete, HttpCode, HttpStatus, Req} from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Query,
+    Post,
+    Body,
+    Put,
+    Param,
+    Delete,
+    HttpCode,
+    HttpStatus,
+    Req,
+    UseGuards
+} from '@nestjs/common';
 import {UserService} from "./user.service";
 import {ApiBearerAuth, ApiOkResponse, ApiTags} from "@nestjs/swagger";
 import {UserEntity} from "./entity/user.entity";
 import {UserResponseDto} from "./dto/user-response.dto";
+import {AuthGuard} from "../auth/auth.guard";
 
 @ApiBearerAuth('JWT-auth')
 @ApiTags("users")
@@ -14,7 +28,8 @@ export class UserController {
         type: UserResponseDto
     })
     @Get('me')
-    getPostById(@Req() req): Promise<UserResponseDto> {
+    @UseGuards(AuthGuard)
+    async getMe(@Req() req): Promise<UserResponseDto> {
         const id = req.user.sub;
 
         const candidate = await this.userService.getById({ id });
