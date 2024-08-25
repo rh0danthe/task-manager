@@ -13,7 +13,7 @@ import { CommentModule } from './comment/comment.module';
         UserModule,
         AuthModule,
         ColumnModule,
-        CommentModule
+        CommentModule,
     ],
     controllers: [],
     providers: [],

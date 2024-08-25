@@ -29,7 +29,13 @@ import { CommentModule } from 'src/comment/comment.module';
             }),
         }),
     ],
-    providers: [AuthService, AuthGuard, RightGuardColumn, RightGuardTaskCard, RightGuardComment],
+    providers: [
+        AuthService,
+        AuthGuard,
+        RightGuardColumn,
+        RightGuardTaskCard,
+        RightGuardComment,
+    ],
     controllers: [AuthController],
 })
 export class AuthModule {}

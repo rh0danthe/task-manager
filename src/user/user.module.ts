@@ -24,7 +24,7 @@ import { CommentModule } from 'src/comment/comment.module';
         }),
         ColumnModule,
         TaskCardModule,
-        CommentModule
+        CommentModule,
     ],
     exports: [UserService],
 })
