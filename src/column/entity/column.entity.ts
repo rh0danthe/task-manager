@@ -1,5 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger";
-import {Column} from "@prisma/client";
+import { ApiProperty } from '@nestjs/swagger';
+import { Column } from '@prisma/client';
 
 export class ColumnEntity implements Column {
     @ApiProperty()

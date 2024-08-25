@@ -5,11 +5,11 @@ import {
     ForbiddenException,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { ColumnService } from '../../column/column.service';
+import { TaskCardService } from 'src/taskCard/task-card.service';
 
 @Injectable()
-export class RightGuardColumn implements CanActivate {
-    constructor(private readonly columnService: ColumnService) {}
+export class RightGuardTaskCard implements CanActivate {
+    constructor(private readonly taskService: TaskCardService) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request: Request & { user: { sub: string } } = context
@@ -20,13 +20,13 @@ export class RightGuardColumn implements CanActivate {
 
         const id = Number(request.param('id'));
 
-        const column = await this.columnService.getById({ id });
+        const card = await this.taskService.getById({ id });
 
-        if (!column) {
+        if (!card) {
             throw new ForbiddenException('Object not found.');
         }
 
-        if (column.creatorId !== creatorId) {
+        if (card.creatorId !== creatorId) {
             throw new ForbiddenException(
                 'You do not have permission to perform this action.',
             );

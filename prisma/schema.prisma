@@ -16,14 +16,16 @@ datasource db {
 model User {
   id Int @id @default(autoincrement())
 
-  name String
-  email String @unique
+  name     String
+  email    String @unique
   password String
 
-  columns Column[] @relation
-  createdTaskCards TaskCard[] @relation(name: "User_CreatedTasks")
-  takenTaskCards TaskCard[] @relation(name: "User_TakenTasks")
-  comments Comment[] @relation
+  columns          Column[]   @relation
+  createdTaskCards TaskCard[] @relation(name: "user_created_tasks")
+  takenTaskCards   TaskCard[] @relation(name: "user_taken_tasks")
+  comments         Comment[]  @relation
+
+  @@map("users")
 }
 
 model Column {
@@ -31,26 +33,31 @@ model Column {
 
   title String
 
-  creator User @relation(fields: [creatorId], references: [id])
-  creatorId Int @map("creator_id")
+  creator   User @relation(fields: [creatorId], references: [id])
+  creatorId Int  @map("creator_id")
 
   taskCards TaskCard[] @relation
+
+  @@map("columns")
 }
 
 model TaskCard {
   id Int @id @default(autoincrement())
 
+  title   String
   content String
 
-  creator User @relation(fields: [creatorId], references: [id], name: "User_CreatedTasks")
-  creatorId Int @map("creator_id")
+  creator   User @relation(fields: [creatorId], references: [id], name: "user_created_tasks")
+  creatorId Int  @map("creator_id")
 
-  users User[] @relation(name: "User_TakenTasks")
+  users User[] @relation(name: "user_taken_tasks")
 
-  column Column @relation(fields: [columnId], references: [id])
-  columnId Int @map("column_id")
+  column   Column @relation(fields: [columnId], references: [id])
+  columnId Int    @map("column_id")
 
   comments Comment[] @relation
+
+  @@map("task_cards")
 }
 
 model Comment {
@@ -58,9 +65,11 @@ model Comment {
 
   content String
 
-  creator User @relation(fields: [creatorId], references: [id])
-  creatorId Int @map("creator_id")
+  creator   User @relation(fields: [creatorId], references: [id])
+  creatorId Int  @map("creator_id")
 
-  taskCard TaskCard @relation(fields: [taskcardId], references: [id])
-  taskcardId Int @map("taskcard_id")
+  taskCard   TaskCard @relation(fields: [taskcardId], references: [id])
+  taskcardId Int      @map("task_card_id")
+
+  @@map("comments")
 }

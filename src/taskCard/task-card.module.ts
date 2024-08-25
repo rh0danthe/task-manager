@@ -1,18 +1,19 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PrismaModule } from '../prisma/prisma.module';
-import { ColumnService } from './column.service';
-import { ColumnController } from './column.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TaskCardController } from 'src/taskCard/task-card.controller';
-import { TaskCardModule } from 'src/taskCard/task-card.module';
+import { TaskCardController } from './task-card.controller';
+import { TaskCardService } from './task-card.service';
+import { UserModule } from 'src/user/user.module';
+import { ColumnModule } from 'src/column/column.module';
 
 @Module({
-    controllers: [ColumnController],
-    providers: [ColumnService],
+    controllers: [TaskCardController],
+    providers: [TaskCardService],
     imports: [
         PrismaModule,
-        TaskCardModule,
+        forwardRef(() => ColumnModule),
+        forwardRef(() => UserModule),
         JwtModule.registerAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
@@ -23,6 +24,6 @@ import { TaskCardModule } from 'src/taskCard/task-card.module';
             }),
         }),
     ],
-    exports: [ColumnService],
+    exports: [TaskCardService],
 })
-export class ColumnModule {}
+export class TaskCardModule {}

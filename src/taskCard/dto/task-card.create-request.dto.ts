@@ -1,6 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class ColumnRequestDto {
+export class TaskCardCreateRequestDto {
     @ApiProperty()
     title: string;
+
+    @ApiProperty()
+    content: string;
 }

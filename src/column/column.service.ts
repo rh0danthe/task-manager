@@ -1,93 +1,96 @@
-import {Injectable, NotFoundException} from '@nestjs/common';
-import {PrismaService} from 'src/prisma/prisma.service';
-import {Column} from '@prisma/client';
-import {ColumnRequestDto} from "./dto/column-request.dto";
-import {ColumnResponseDto} from "./dto/column-response.dto";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { ColumnRequestDto } from './dto/column-request.dto';
+import { ColumnResponseDto } from './dto/column-response.dto';
 
 @Injectable()
 export class ColumnService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(private readonly prisma: PrismaService) {}
 
-    async create(params: { data: ColumnRequestDto, creatorId: number }): Promise<ColumnResponseDto> {
+    async create(params: {
+        data: ColumnRequestDto;
+        creatorId: number;
+    }): Promise<ColumnResponseDto> {
         const { data, creatorId } = params;
 
         const dbColumn = await this.prisma.column.create({
-            data: {
-                title: data.title,
-                creatorId
-            },
+            data: { title: data.title, creatorId },
         });
 
-        return {id: dbColumn.id,
-                title: dbColumn.title,
-                creatorId: dbColumn.creatorId};
+        return { id: dbColumn.id, title: dbColumn.title, creatorId };
     }
 
-    async getById(params: {id: number}) : Promise<ColumnResponseDto> {
+    async getById(params: { id: number }): Promise<ColumnResponseDto> {
         const { id } = params;
 
         const dbColumn = await this.prisma.column.findUnique({
-            where: {
-                id,
-            },
+            where: { id },
         });
 
         if (!dbColumn) {
-            throw new NotFoundException(`Column with id ${id} does not exist`)
+            throw new NotFoundException(`Column with id ${id} does not exist`);
         }
 
-        return {id: dbColumn.id,
-                title: dbColumn.title,
-                creatorId: dbColumn.creatorId};
+        return { id, title: dbColumn.title, creatorId: dbColumn.creatorId };
     }
 
-    async getAllByCreatorId(params: { creatorId: number }): Promise<ColumnResponseDto[]> {
+    async getAllByCreatorId(params: {
+        creatorId: number;
+    }): Promise<ColumnResponseDto[]> {
         const { creatorId } = params;
 
         const columns = await this.prisma.column.findMany({
             where: {
                 creatorId,
-            }
+            },
         });
 
         return columns.map((elem) => ({
             id: elem.id,
             title: elem.title,
-            creatorId: elem.creatorId,
+            creatorId,
         }));
     }
 
-    async update(params: {data: ColumnRequestDto, id: number}): Promise<ColumnResponseDto> {
+    async update(params: {
+        data: ColumnRequestDto;
+        id: number;
+    }): Promise<ColumnResponseDto> {
         const { data, id } = params;
 
-        let dbColumn = this.getById({id});
+        await this.getById({ id });
 
         const updatedColumn = await this.prisma.column.update({
             where: {
-                id
+                id,
             },
             data: {
-                title: data.title
+                title: data.title,
             },
         });
 
-        return {id,
+        return {
+            id,
             title: updatedColumn.title,
-            creatorId: updatedColumn.creatorId};
+            creatorId: updatedColumn.creatorId,
+        };
     }
 
-    async delete(params: {id: number}): Promise<ColumnResponseDto>{
+    async delete(params: { id: number }): Promise<ColumnResponseDto> {
         const { id } = params;
+
+        await this.getById({ id });
 
         const deletedColumn = await this.prisma.column.delete({
             where: {
-            id
-            }
+                id,
+            },
         });
 
-        return {id,
+        return {
+            id,
             title: deletedColumn.title,
-            creatorId: deletedColumn.creatorId};
+            creatorId: deletedColumn.creatorId,
+        };
     }
-
 }
