@@ -7,7 +7,7 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserDto } from './dto/user.dto';
 import { AuthGuard } from '../auth/guard/auth.guard';
 import { ColumnService } from '../column/column.service';
@@ -20,7 +20,7 @@ import { CommentDto } from 'src/comment/dto/comment.dto';
 import { ColumnDto } from 'src/column/dto/column.dto';
 
 @ApiBearerAuth('JWT-auth')
-@ApiTags('users')
+@ApiTags('Users')
 @Controller('users')
 export class UserController {
     constructor(
@@ -30,8 +30,10 @@ export class UserController {
         private readonly commentService: CommentService,
     ) {}
 
+    @ApiOperation({ summary: 'Get the current authenticated user\'s details' })
     @ApiOkResponse({
         type: UserDto,
+        description: 'Successfully retrieved user details',
     })
     @Get('me')
     @UseGuards(AuthGuard)
@@ -41,6 +43,7 @@ export class UserController {
         return this.userService.getById({ id });
     }
 
+    @ApiOperation({ summary: 'Get all task cards currently being executed by a user' })
     @ApiOkArrayResponse(TaskCardDto)
     @Get(':id/taskcards/executing')
     @UseGuards(AuthGuard)
@@ -52,6 +55,7 @@ export class UserController {
         );
     }
 
+    @ApiOperation({ summary: 'Get all task cards created by a user' })
     @ApiOkArrayResponse(TaskCardDto)
     @Get(':id/taskcards/created')
     @UseGuards(AuthGuard)
@@ -64,6 +68,7 @@ export class UserController {
         );
     }
 
+    @ApiOperation({ summary: 'Get all comments created by a user' })
     @ApiOkArrayResponse(CommentDto)
     @Get(':id/comments')
     @UseGuards(AuthGuard)
@@ -76,6 +81,7 @@ export class UserController {
         );
     }
 
+    @ApiOperation({ summary: 'Get all columns created by a user' })
     @ApiOkArrayResponse(ColumnDto)
     @Get(':id/columns')
     @UseGuards(AuthGuard)

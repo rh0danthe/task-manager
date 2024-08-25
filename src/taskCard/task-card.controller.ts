@@ -4,7 +4,6 @@ import {
     Controller,
     Delete,
     Get,
-    HttpStatus,
     Param,
     ParseIntPipe,
     Patch,
@@ -12,7 +11,7 @@ import {
     Req,
     UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/guard/auth.guard';
 import { TaskCardDto } from './dto/task-card.dto';
 import { TaskCardService } from './task-card.service';
@@ -25,7 +24,7 @@ import { ArrayResponse, mapToArrayResponse } from 'src/common/array.response';
 import { CommentCreateDto } from 'src/comment/dto/comment.create.dto';
 
 @ApiBearerAuth('JWT-auth')
-@ApiTags('taskcards')
+@ApiTags('Taskcards')
 @Controller('taskcards')
 export class TaskCardController {
     constructor(
@@ -33,6 +32,7 @@ export class TaskCardController {
         private readonly commentService: CommentService,
     ) {}
 
+    @ApiOperation({ summary: 'Get all task cards created by the authentificated user' })
     @ApiOkArrayResponse(TaskCardDto)
     @Get('created')
     @UseGuards(AuthGuard)
@@ -44,6 +44,7 @@ export class TaskCardController {
         );
     }
 
+    @ApiOperation({ summary: 'Get all task cards being executed by the authentificated user' })
     @ApiOkArrayResponse(TaskCardDto)
     @Get('executing')
     @UseGuards(AuthGuard)
@@ -55,8 +56,10 @@ export class TaskCardController {
         );
     }
 
+    @ApiOperation({ summary: 'Get a specific task card by its ID' })
     @ApiOkResponse({
         type: TaskCardDto,
+        description: 'Successfully retrieved task card',
     })
     @Get(':id')
     @UseGuards(AuthGuard)
@@ -64,6 +67,7 @@ export class TaskCardController {
         return this.taskService.getById({ id });
     }
 
+    @ApiOperation({ summary: 'Get all comments for a specific task card by its ID' })
     @ApiOkArrayResponse(CommentDto)
     @Get(':id/comments')
     @UseGuards(AuthGuard)
@@ -73,6 +77,7 @@ export class TaskCardController {
         );
     }
 
+    @ApiOperation({ summary: 'Take a task card by its ID' })
     @ApiOkResponse({
         description: 'Successfully took a task card',
     })
@@ -90,6 +95,7 @@ export class TaskCardController {
         }
     }
 
+    @ApiOperation({ summary: 'Give up a task card by its ID' })
     @ApiOkResponse({
         description: 'Successfully gave up task card',
     })
@@ -107,8 +113,10 @@ export class TaskCardController {
         }
     }
 
+    @ApiOperation({ summary: 'Create a comment for a specific task card' })
     @ApiOkResponse({
         type: CommentDto,
+        description: 'Successfully created comment',
     })
     @Post(':id/comments')
     @UseGuards(AuthGuard)
@@ -126,8 +134,10 @@ export class TaskCardController {
         });
     }
 
+    @ApiOperation({ summary: 'Update a specific task card by its ID' })
     @ApiOkResponse({
         type: TaskCardDto,
+        description: 'Successfully updated task card',
     })
     @Patch(':id')
     @UseGuards(AuthGuard, RightGuardTaskCard)
@@ -138,6 +148,7 @@ export class TaskCardController {
         return this.taskService.update({ data: dto, id });
     }
 
+    @ApiOperation({ summary: 'Delete a specific task card by its ID' })
     @ApiOkResponse({
         description: 'Column successfully deleted',
         type: TaskCardDto,

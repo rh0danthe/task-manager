@@ -1,15 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CommentDto {
-    @ApiProperty()
+    @ApiProperty({
+        description: 'Unique identifier of the comment',
+        type: Number,
+    })
     id: number;
 
-    @ApiProperty()
+    @ApiProperty({
+        description: 'Content of the comment',
+        type: String,
+    })
     content: string;
 
-    @ApiProperty()
+    @ApiProperty({
+        description: 'Identifier of the user who created the comment',
+        type: Number,
+    })
     creatorId: number;
 
-    @ApiProperty()
+    @ApiProperty({
+        description: 'Identifier of the task card to which the comment belongs',
+        type: Number,
+    })
     taskcardId: number;
 }

@@ -11,19 +11,27 @@ import {
 import { AuthService } from './auth.service';
 import { UserSignInDto } from './dto/user.sign-in.dto';
 import { UserRegisterDto } from './dto/user.register.dto';
-import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiOkResponse,
+    ApiOperation,
+    ApiTags,
+} from '@nestjs/swagger';
 import { UserDto } from 'src/user/dto/user.dto';
 import { UserUpdateDto } from './dto/user-update.dto';
 import { AuthGuard } from './guard/auth.guard';
 import { TokenDto } from './dto/token.dto';
 
 @ApiBearerAuth('JWT-auth')
+@ApiTags('Authentification')
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
+    @ApiOperation({ summary: 'Sign in a user' })
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({
+        description: 'Successfully signed in',
         type: TokenDto,
     })
     @Post('signIn')
@@ -33,8 +41,10 @@ export class AuthController {
         });
     }
 
+    @ApiOperation({ summary: 'Register a new user' })
     @HttpCode(HttpStatus.OK)
     @ApiOkResponse({
+        description: 'Successfully registered',
         type: TokenDto,
     })
     @Post('register')
@@ -44,7 +54,9 @@ export class AuthController {
         });
     }
 
+    @ApiOperation({ summary: 'Update user credentials' })
     @ApiOkResponse({
+        description: 'Successfully updated user credentials',
         type: UserDto,
     })
     @Patch('credentials')

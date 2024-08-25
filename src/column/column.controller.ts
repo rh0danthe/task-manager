@@ -4,8 +4,6 @@ import {
     Controller,
     Delete,
     Get,
-    HttpException,
-    HttpStatus,
     Param,
     ParseIntPipe,
     Post,
@@ -13,7 +11,12 @@ import {
     Req,
     UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiOkResponse,
+    ApiOperation,
+    ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from '../auth/guard/auth.guard';
 import { ColumnDto } from './dto/column.dto';
 import { ColumnService } from '../column/column.service';
@@ -27,7 +30,7 @@ import { ColumnUpdateDto } from './dto/column.update.dto';
 import { ColumnCreateDto } from './dto/column.create.dto';
 
 @ApiBearerAuth('JWT-auth')
-@ApiTags('columns')
+@ApiTags('Columns')
 @Controller('columns')
 export class ColumnController {
     constructor(
@@ -35,7 +38,9 @@ export class ColumnController {
         private readonly taskService: TaskCardService,
     ) {}
 
+    @ApiOperation({ summary: 'Get a column by ID' })
     @ApiOkResponse({
+        description: 'Successfully retrieved the column',
         type: ColumnDto,
     })
     @Get(':id')
@@ -44,6 +49,7 @@ export class ColumnController {
         return this.columnService.getById({ id });
     }
 
+    @ApiOperation({ summary: 'Get all columns for the authenticated user' })
     @ApiOkArrayResponse(ColumnDto)
     @Get()
     @UseGuards(AuthGuard)
@@ -57,6 +63,7 @@ export class ColumnController {
         );
     }
 
+    @ApiOperation({ summary: 'Get all task cards for a column by column ID' })
     @ApiOkArrayResponse(TaskCardDto)
     @Get(':id/taskcards')
     @UseGuards(AuthGuard)
@@ -68,7 +75,9 @@ export class ColumnController {
         );
     }
 
+    @ApiOperation({ summary: 'Create a new column' })
     @ApiOkResponse({
+        description: 'Successfully created the column',
         type: ColumnDto,
     })
     @Post()
@@ -84,7 +93,11 @@ export class ColumnController {
         return column;
     }
 
+    @ApiOperation({
+        summary: 'Update a column by ID',
+    })
     @ApiOkResponse({
+        description: 'Successfully updated the column',
         type: ColumnDto,
     })
     @Put(':id')
@@ -96,6 +109,9 @@ export class ColumnController {
         return this.columnService.update({ data: dto, id });
     }
 
+    @ApiOperation({
+        summary: 'Delete a column by ID',
+    })
     @ApiOkResponse({
         description: 'Column successfully deleted',
         type: ColumnDto,
@@ -114,7 +130,12 @@ export class ColumnController {
         return res;
     }
 
+    @ApiOperation({
+        summary:
+            'Create a task card within a column for the authenticated user',
+    })
     @ApiOkResponse({
+        description: 'Successfully created the task card',
         type: TaskCardDto,
     })
     @Post(':id/taskcards')

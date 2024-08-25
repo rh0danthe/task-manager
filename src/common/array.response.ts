@@ -1,7 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ArrayResponse<T> {
-    @ApiProperty()
+    @ApiProperty({
+        description: 'Total number of items in the array',
+        type: Number,
+    })
     count: number;
 
     data: T[];

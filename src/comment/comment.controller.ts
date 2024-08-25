@@ -10,7 +10,7 @@ import {
     Req,
     UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/guard/auth.guard';
 import { CommentService } from './comment.service';
 import { RightGuardComment } from 'src/auth/guard/right.guard.comment';
@@ -20,11 +20,12 @@ import { ArrayResponse, mapToArrayResponse } from 'src/common/array.response';
 import { CommentUpdateDto } from './dto/comment.update.dto';
 
 @ApiBearerAuth('JWT-auth')
-@ApiTags('taskcards')
-@Controller('taskcards')
+@ApiTags('Comments')
+@Controller('comments')
 export class CommentController {
     constructor(private readonly commentService: CommentService) {}
 
+    @ApiOperation({ summary: 'Get all comments created by the authenticated user' })
     @ApiOkArrayResponse(CommentDto)
     @Get('created')
     @UseGuards(AuthGuard)
@@ -36,7 +37,9 @@ export class CommentController {
         );
     }
 
+    @ApiOperation({ summary: 'Get a comment by its ID' })
     @ApiOkResponse({
+        description: 'Successfully retrieved the comment',
         type: CommentDto,
     })
     @Get(':id')
@@ -45,7 +48,9 @@ export class CommentController {
         return this.commentService.getById({ id });
     }
 
+    @ApiOperation({ summary: 'Update a comment by its ID' })
     @ApiOkResponse({
+        description: 'Successfully updated the comment',
         type: CommentDto,
     })
     @Put(':id')
@@ -57,8 +62,9 @@ export class CommentController {
         return this.commentService.update({ data: dto, id });
     }
 
+    @ApiOperation({ summary: 'Delete a comment by its ID' })
     @ApiOkResponse({
-        description: 'Column successfully deleted',
+        description: 'Successfully deleted the comment',
         type: CommentDto,
     })
     @Delete(':id')

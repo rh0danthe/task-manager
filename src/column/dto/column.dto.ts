@@ -1,13 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column } from '@prisma/client';
 
 export class ColumnDto {
-    @ApiProperty()
+    @ApiProperty({
+        description: 'Unique identifier of the column',
+        type: Number,
+    })
     id: number;
 
-    @ApiProperty()
+    @ApiProperty({
+        description: 'Title of the column',
+        type: String,
+    })
     title: string;
 
-    @ApiProperty()
+    @ApiProperty({
+        description: 'Identifier of the user who created the column',
+        type: Number,
+    })
     creatorId: number;
 }

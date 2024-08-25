@@ -4,7 +4,6 @@ import { ColumnService } from './column.service';
 import { ColumnController } from './column.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TaskCardController } from 'src/taskCard/task-card.controller';
 import { TaskCardModule } from 'src/taskCard/task-card.module';
 
 @Module({
