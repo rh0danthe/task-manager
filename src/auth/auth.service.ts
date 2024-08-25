@@ -40,7 +40,7 @@ export class AuthService {
         const payload = { sub: newUser.id };
 
         return {
-            access_token: await this.jwtService.signAsync(payload),
+            accessToken: await this.jwtService.signAsync(payload),
         };
     }
 
@@ -69,7 +69,7 @@ export class AuthService {
         const payload = { sub: dbUser.id };
 
         return {
-            access_token: await this.jwtService.signAsync(payload),
+            accessToken: await this.jwtService.signAsync(payload),
         };
     }
 

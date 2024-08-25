@@ -14,6 +14,4 @@ export class UserEntity implements User {
 
     @ApiProperty()
     password: string;
-
-    takenTaskCards?: TaskCardEntity[];
 }

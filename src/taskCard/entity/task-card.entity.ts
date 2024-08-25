@@ -17,6 +17,4 @@ export class TaskCardEntity implements TaskCard {
 
     @ApiProperty()
     columnId: number;
-
-    users?: UserEntity[];
 }
