@@ -5,11 +5,10 @@ import {
     ForbiddenException,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { TaskCardService } from 'src/taskCard/task-card.service';
-
+import { CommentService } from 'src/comment/comment.service';
 @Injectable()
-export class RightGuardTaskCard implements CanActivate {
-    constructor(private readonly taskService: TaskCardService) {}
+export class RightGuardComment implements CanActivate {
+    constructor(private readonly commentService: CommentService) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request: Request & { user: { sub: string } } = context
@@ -20,13 +19,13 @@ export class RightGuardTaskCard implements CanActivate {
 
         const id = Number(request.params['id']);
 
-        const card = await this.taskService.getById({ id });
+        const comment = await this.commentService.getById({ id });
 
-        if (!card) {
+        if (!comment) {
             throw new ForbiddenException('Object not found.');
         }
 
-        if (card.creatorId !== creatorId) {
+        if (comment.creatorId !== creatorId) {
             throw new ForbiddenException(
                 'You do not have permission to perform this action.',
             );

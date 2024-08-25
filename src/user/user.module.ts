@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ColumnModule } from '../column/column.module';
 import { TaskCardModule } from 'src/taskCard/task-card.module';
+import { CommentModule } from 'src/comment/comment.module';
 
 @Module({
     controllers: [UserController],
@@ -23,6 +24,7 @@ import { TaskCardModule } from 'src/taskCard/task-card.module';
         }),
         ColumnModule,
         TaskCardModule,
+        CommentModule
     ],
     exports: [UserService],
 })

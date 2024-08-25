@@ -18,7 +18,7 @@ export class RightGuardColumn implements CanActivate {
 
         const creatorId = Number(request.user.sub);
 
-        const id = Number(request.param('id'));
+        const id = Number(request.params['id']);
 
         const column = await this.columnService.getById({ id });
 

@@ -44,7 +44,7 @@ export class AuthController {
     @ApiOkResponse({
         type: UserResponseDto,
     })
-    @Patch()
+    @Patch("credentials")
     @UseGuards(AuthGuard)
     async update(
         @Req() req,

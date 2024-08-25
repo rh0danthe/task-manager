@@ -9,12 +9,16 @@ import { RightGuardColumn } from './guard/right.guard.column';
 import { ColumnModule } from '../column/column.module';
 import { RightGuardTaskCard } from './guard/right.guard.task-card';
 import { TaskCardModule } from 'src/taskCard/task-card.module';
+import { RightGuardComment } from './guard/right.guard.comment';
+import { CommentModule } from 'src/comment/comment.module';
 
 @Module({
     imports: [
         UserModule,
         ColumnModule,
         TaskCardModule,
+        CommentModule,
+        ConfigModule.forRoot(),
         JwtModule.registerAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
@@ -25,7 +29,7 @@ import { TaskCardModule } from 'src/taskCard/task-card.module';
             }),
         }),
     ],
-    providers: [AuthService, AuthGuard, RightGuardColumn, RightGuardTaskCard],
+    providers: [AuthService, AuthGuard, RightGuardColumn, RightGuardTaskCard, RightGuardComment],
     controllers: [AuthController],
 })
 export class AuthModule {}

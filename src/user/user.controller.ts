@@ -17,6 +17,7 @@ import { ColumnService } from '../column/column.service';
 import { TaskCardResponseDto } from 'src/taskCard/dto/task-card.response.dto';
 import { TaskCardService } from 'src/taskCard/task-card.service';
 import { UserUpdateDto } from '../auth/dto/user-update.dto';
+import { CommentService } from 'src/comment/comment.service';
 
 @ApiBearerAuth('JWT-auth')
 @ApiTags('users')
@@ -26,6 +27,7 @@ export class UserController {
         private readonly userService: UserService,
         private readonly columnService: ColumnService,
         private readonly taskService: TaskCardService,
+        private readonly commentService: CommentService
     ) {}
 
     @ApiOkResponse({
@@ -60,12 +62,22 @@ export class UserController {
     }
 
     @ApiOkResponse({
+        type: TaskCardResponseDto,
+        isArray: true,
+    })
+    @Get(':id/comments')
+    @UseGuards(AuthGuard)
+    async getComments(@Req() req, @Param('id', ParseIntPipe) id: number) {
+        return this.commentService.getAllByCreatorId({ creatorId: id });
+    }
+
+    @ApiOkResponse({
         type: ColumnResponseDto,
     })
-    @Get(':userId/columns')
+    @Get(':id/columns')
     @UseGuards(AuthGuard)
     async getAllColumnsByUser(
-        @Param('userId', ParseIntPipe) userId: number,
+        @Param('id', ParseIntPipe) userId: number,
     ): Promise<ColumnResponseDto[]> {
         return this.columnService.getAllByCreatorId({ creatorId: userId });
     }

@@ -9,7 +9,6 @@ import {
     ParseIntPipe,
     Patch,
     Post,
-    Put,
     Req,
     UseGuards,
 } from '@nestjs/common';
@@ -19,12 +18,17 @@ import { TaskCardResponseDto } from './dto/task-card.response.dto';
 import { TaskCardService } from './task-card.service';
 import { RightGuardTaskCard } from 'src/auth/guard/right.guard.task-card';
 import { TaskCardUpdateRequestDto } from './dto/task-card.update-request.dto';
+import { CommentService } from 'src/comment/comment.service';
+import { CommentResponseDto } from 'src/comment/dto/comment-response.dto';
+import { CommentRequestDto } from 'src/comment/dto/comment-request.dto';
 
 @ApiBearerAuth('JWT-auth')
 @ApiTags('taskcards')
 @Controller('taskcards')
 export class TaskCardController {
-    constructor(private readonly taskService: TaskCardService) {}
+    constructor(private readonly taskService: TaskCardService,
+        private readonly commentService: CommentService,
+    ) {}
 
     @ApiOkResponse({
         type: TaskCardResponseDto,
@@ -58,6 +62,17 @@ export class TaskCardController {
         @Param('id', ParseIntPipe) id: number,
     ): Promise<TaskCardResponseDto> {
         return this.taskService.getById({ id });
+    }
+    
+    @ApiOkResponse({
+        type: CommentResponseDto,
+        isArray: true,
+    })
+    @Get(':id/comments')
+    @UseGuards(AuthGuard)
+    async getComments(@Param('id', ParseIntPipe) taskcardId: number) {
+
+        return this.commentService.getAllByTaskCardId({taskcardId});
     }
 
     @ApiOkResponse({
@@ -102,6 +117,23 @@ export class TaskCardController {
         }
 
         return HttpStatus.OK;
+    }
+
+    @ApiOkResponse({
+        type: CommentResponseDto
+    })
+    @Post(':id/comments')
+    @UseGuards(AuthGuard)
+    async createComment(
+        @Req() req,
+        @Param('id', ParseIntPipe) taskcardId: number,
+        @Body() dto: CommentRequestDto,
+    ): Promise<CommentResponseDto> {
+        const creatorId = req.user.sub;
+
+        const res = await this.commentService.create({data: dto, creatorId, taskcardId});
+
+        return res;
     }
 
     @ApiOkResponse({
