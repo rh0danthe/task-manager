@@ -1,23 +1,23 @@
 import {
-    Body,
     Controller,
     Get,
     Param,
     ParseIntPipe,
-    Patch,
     Req,
     UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { UserResponseDto } from './dto/user-response.dto';
+import { UserDto } from './dto/user.dto';
 import { AuthGuard } from '../auth/guard/auth.guard';
-import { ColumnResponseDto } from '../column/dto/column-response.dto';
 import { ColumnService } from '../column/column.service';
-import { TaskCardResponseDto } from 'src/taskCard/dto/task-card.response.dto';
 import { TaskCardService } from 'src/taskCard/task-card.service';
-import { UserUpdateDto } from '../auth/dto/user-update.dto';
 import { CommentService } from 'src/comment/comment.service';
+import { ApiOkArrayResponse } from 'src/common/swagger.utils';
+import { TaskCardDto } from 'src/taskCard/dto/task-card.dto';
+import { ArrayResponse, mapToArrayResponse } from 'src/common/array.response';
+import { CommentDto } from 'src/comment/dto/comment.dto';
+import { ColumnDto } from 'src/column/dto/column.dto';
 
 @ApiBearerAuth('JWT-auth')
 @ApiTags('users')
@@ -27,58 +27,63 @@ export class UserController {
         private readonly userService: UserService,
         private readonly columnService: ColumnService,
         private readonly taskService: TaskCardService,
-        private readonly commentService: CommentService
+        private readonly commentService: CommentService,
     ) {}
 
     @ApiOkResponse({
-        type: UserResponseDto,
+        type: UserDto,
     })
     @Get('me')
     @UseGuards(AuthGuard)
-    async getMe(@Req() req): Promise<UserResponseDto> {
+    async getMe(@Req() req): Promise<UserDto> {
         const id = req.user.sub;
 
         return this.userService.getById({ id });
     }
 
-    @ApiOkResponse({
-        type: TaskCardResponseDto,
-        isArray: true,
-    })
+    @ApiOkArrayResponse(TaskCardDto)
     @Get(':id/taskcards/executing')
     @UseGuards(AuthGuard)
-    async getExecutingCards(@Param('id', ParseIntPipe) id: number) {
-        return this.taskService.getCardsByUserExecuting({ userId: id });
+    async getExecutingCards(
+        @Param('id', ParseIntPipe) id: number,
+    ): Promise<ArrayResponse<TaskCardDto>> {
+        return mapToArrayResponse(
+            await this.taskService.getCardsByUserExecuting({ userId: id }),
+        );
     }
 
-    @ApiOkResponse({
-        type: TaskCardResponseDto,
-        isArray: true,
-    })
+    @ApiOkArrayResponse(TaskCardDto)
     @Get(':id/taskcards/created')
     @UseGuards(AuthGuard)
-    async getCreatedCards(@Req() req, @Param('id', ParseIntPipe) id: number) {
-        return this.taskService.getAllByCreatorId({ creatorId: id });
+    async getCreatedCards(
+        @Req() req,
+        @Param('id', ParseIntPipe) id: number,
+    ): Promise<ArrayResponse<TaskCardDto>> {
+        return mapToArrayResponse(
+            await this.taskService.getAllByCreatorId({ creatorId: id }),
+        );
     }
 
-    @ApiOkResponse({
-        type: TaskCardResponseDto,
-        isArray: true,
-    })
+    @ApiOkArrayResponse(CommentDto)
     @Get(':id/comments')
     @UseGuards(AuthGuard)
-    async getComments(@Req() req, @Param('id', ParseIntPipe) id: number) {
-        return this.commentService.getAllByCreatorId({ creatorId: id });
+    async getComments(
+        @Req() req,
+        @Param('id', ParseIntPipe) id: number,
+    ): Promise<ArrayResponse<CommentDto>> {
+        return mapToArrayResponse(
+            await this.commentService.getAllByCreatorId({ creatorId: id }),
+        );
     }
 
-    @ApiOkResponse({
-        type: ColumnResponseDto,
-    })
+    @ApiOkArrayResponse(ColumnDto)
     @Get(':id/columns')
     @UseGuards(AuthGuard)
     async getAllColumnsByUser(
         @Param('id', ParseIntPipe) userId: number,
-    ): Promise<ColumnResponseDto[]> {
-        return this.columnService.getAllByCreatorId({ creatorId: userId });
+    ): Promise<ArrayResponse<ColumnDto>> {
+        return mapToArrayResponse(
+            await this.columnService.getAllByCreatorId({ creatorId: userId }),
+        );
     }
 }

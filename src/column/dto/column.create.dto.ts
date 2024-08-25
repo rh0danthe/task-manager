@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CommentRequestDto {
-
+export class ColumnCreateDto {
     @ApiProperty()
-    content: string;
+    title: string;
 }

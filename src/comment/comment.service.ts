@@ -2,40 +2,41 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { TaskCardService } from 'src/taskCard/task-card.service';
-import { CommentRequestDto } from './dto/comment-request.dto';
-import { CommentResponseDto } from './dto/comment-response.dto';
+import { CommentDto } from './dto/comment.dto';
+import { mapToCommentDto } from './mappers/comment.mapper';
+import { CommentCreateDto } from './dto/comment.create.dto';
+import { CommentUpdateDto } from './dto/comment.update.dto';
 
 @Injectable()
 export class CommentService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly taskService: TaskCardService,
-        private readonly userService: UserService
+        private readonly userService: UserService,
     ) {}
 
     async create(params: {
-        data: CommentRequestDto;
+        data: CommentCreateDto;
         creatorId: number;
         taskcardId: number;
-    }): Promise<CommentResponseDto> {
-        const { data, creatorId, taskcardId} = params;
+    }): Promise<CommentDto> {
+        const { data, creatorId, taskcardId } = params;
 
-        await this.taskService.getById({id: taskcardId});
+        await this.taskService.assertTaskCardExists({ id: taskcardId });
 
         const dbComment = await this.prisma.comment.create({
             data: {
                 content: data.content,
                 creatorId,
-                taskcardId
+                taskcardId,
             },
         });
 
-        return dbComment;
+        return mapToCommentDto(dbComment);
     }
 
-    async getById(params: { id: number }): Promise<CommentResponseDto> {
+    async getById(params: { id: number }): Promise<CommentDto> {
         const { id } = params;
-
 
         const dbComment = await this.prisma.comment.findUnique({
             where: {
@@ -44,20 +45,18 @@ export class CommentService {
         });
 
         if (!dbComment) {
-            throw new NotFoundException(
-                `Comment with id ${id} does not exist`,
-            );
+            throw new NotFoundException(`Comment with id ${id} does not exist`);
         }
 
-        return dbComment;
+        return mapToCommentDto(dbComment);
     }
 
     async getAllByCreatorId(params: {
         creatorId: number;
-    }): Promise<CommentResponseDto[]> {
+    }): Promise<CommentDto[]> {
         const { creatorId } = params;
 
-        await this.userService.getById({id: creatorId});
+        await this.userService.assertUserExists({ id: creatorId });
 
         const comments = await this.prisma.comment.findMany({
             where: {
@@ -65,15 +64,15 @@ export class CommentService {
             },
         });
 
-        return comments;
+        return comments.map(mapToCommentDto);
     }
 
     async getAllByTaskCardId(params: {
         taskcardId: number;
-    }): Promise<CommentResponseDto[]> {
+    }): Promise<CommentDto[]> {
         const { taskcardId } = params;
 
-        await this.taskService.getById({id: taskcardId});
+        await this.taskService.assertTaskCardExists({ id: taskcardId });
 
         const comments = await this.prisma.comment.findMany({
             where: {
@@ -81,16 +80,30 @@ export class CommentService {
             },
         });
 
-        return comments;
+        return comments.map(mapToCommentDto);
+    }
+
+    async assertCommentExists(params: { id: number }) {
+        const { id } = params;
+
+        const dbComment = await this.prisma.comment.findUnique({
+            where: {
+                id,
+            },
+        });
+
+        if (!dbComment) {
+            throw new NotFoundException(`Comment with id ${id} does not exist`);
+        }
     }
 
     async update(params: {
-        data: CommentRequestDto;
+        data: CommentUpdateDto;
         id: number;
-    }): Promise<CommentResponseDto> {
+    }): Promise<CommentDto> {
         const { data, id } = params;
 
-        await this.getById({ id });
+        await this.assertCommentExists({ id });
 
         const updatedComment = await this.prisma.comment.update({
             where: {
@@ -101,13 +114,13 @@ export class CommentService {
             },
         });
 
-        return updatedComment;
+        return mapToCommentDto(updatedComment);
     }
 
-    async delete(params: { id: number }): Promise<CommentResponseDto> {
+    async delete(params: { id: number }): Promise<CommentDto> {
         const { id } = params;
 
-        await this.getById({ id });
+        await this.assertCommentExists({ id });
 
         const deletedComment = await this.prisma.comment.delete({
             where: {
@@ -115,7 +128,6 @@ export class CommentService {
             },
         });
 
-        return deletedComment;
+        return mapToCommentDto(deletedComment);
     }
-
 }

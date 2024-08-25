@@ -15,13 +15,16 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/guard/auth.guard';
-import { ColumnResponseDto } from '../column/dto/column-response.dto';
+import { ColumnDto } from './dto/column.dto';
 import { ColumnService } from '../column/column.service';
-import { ColumnRequestDto } from './dto/column-request.dto';
 import { RightGuardColumn } from '../auth/guard/right.guard.column';
-import { TaskCardResponseDto } from 'src/taskCard/dto/task-card.response.dto';
+import { TaskCardDto } from 'src/taskCard/dto/task-card.dto';
 import { TaskCardCreateRequestDto } from 'src/taskCard/dto/task-card.create-request.dto';
 import { TaskCardService } from 'src/taskCard/task-card.service';
+import { ApiOkArrayResponse } from 'src/common/swagger.utils';
+import { ArrayResponse, mapToArrayResponse } from 'src/common/array.response';
+import { ColumnUpdateDto } from './dto/column.update.dto';
+import { ColumnCreateDto } from './dto/column.create.dto';
 
 @ApiBearerAuth('JWT-auth')
 @ApiTags('columns')
@@ -33,46 +36,44 @@ export class ColumnController {
     ) {}
 
     @ApiOkResponse({
-        type: ColumnResponseDto,
+        type: ColumnDto,
     })
     @Get(':id')
     @UseGuards(AuthGuard)
-    async getById(
-        @Param('id', ParseIntPipe) id: number,
-    ): Promise<ColumnResponseDto> {
+    async getById(@Param('id', ParseIntPipe) id: number): Promise<ColumnDto> {
         return this.columnService.getById({ id });
     }
 
-    @ApiOkResponse({
-        type: ColumnResponseDto,
-    })
+    @ApiOkArrayResponse(ColumnDto)
     @Get()
     @UseGuards(AuthGuard)
-    async getAll(@Req() req): Promise<ColumnResponseDto[]> {
+    async getAll(@Req() req): Promise<ArrayResponse<ColumnDto>> {
         const id = req.user.sub;
 
-        return this.columnService.getAllByCreatorId({ creatorId: id });
+        return mapToArrayResponse(
+            await this.columnService.getAllByCreatorId({
+                creatorId: id,
+            }),
+        );
     }
 
-    @ApiOkResponse({
-        type: TaskCardResponseDto,
-    })
-    @Get(":id/taskcards")
+    @ApiOkArrayResponse(TaskCardDto)
+    @Get(':id/taskcards')
     @UseGuards(AuthGuard)
-    async getAllTaskCards( @Param('id', ParseIntPipe) id: number): Promise<TaskCardResponseDto[]> {
-
-        return this.taskService.getAllByColumnId({ columnId: id });
+    async getAllTaskCards(
+        @Param('id', ParseIntPipe) id: number,
+    ): Promise<ArrayResponse<TaskCardDto>> {
+        return mapToArrayResponse(
+            await this.taskService.getAllByColumnId({ columnId: id }),
+        );
     }
 
     @ApiOkResponse({
-        type: ColumnResponseDto,
+        type: ColumnDto,
     })
     @Post()
     @UseGuards(AuthGuard)
-    async create(
-        @Req() req,
-        @Body() dto: ColumnRequestDto,
-    ): Promise<ColumnResponseDto> {
+    async create(@Req() req, @Body() dto: ColumnCreateDto): Promise<ColumnDto> {
         const id = req.user.sub;
 
         const column = await this.columnService.create({
@@ -84,26 +85,24 @@ export class ColumnController {
     }
 
     @ApiOkResponse({
-        type: ColumnResponseDto,
+        type: ColumnDto,
     })
     @Put(':id')
     @UseGuards(AuthGuard, RightGuardColumn)
     async update(
         @Param('id', ParseIntPipe) id: number,
-        @Body() dto: ColumnRequestDto
-    ): Promise<ColumnResponseDto> {
+        @Body() dto: ColumnUpdateDto,
+    ): Promise<ColumnDto> {
         return this.columnService.update({ data: dto, id });
     }
 
     @ApiOkResponse({
         description: 'Column successfully deleted',
-        type: ColumnResponseDto,
+        type: ColumnDto,
     })
     @Delete(':id')
     @UseGuards(AuthGuard, RightGuardColumn)
-    async delete(
-        @Param('id', ParseIntPipe) id: number,
-    ): Promise<ColumnResponseDto> {
+    async delete(@Param('id', ParseIntPipe) id: number): Promise<ColumnDto> {
         const res = await this.columnService.delete({ id });
 
         if (!res) {
@@ -116,21 +115,21 @@ export class ColumnController {
     }
 
     @ApiOkResponse({
-        type: TaskCardResponseDto,
+        type: TaskCardDto,
     })
-    @Post(":id/taskcards")
+    @Post(':id/taskcards')
     @UseGuards(AuthGuard)
     async createTask(
         @Req() req,
         @Body() dto: TaskCardCreateRequestDto,
-        @Param('id', ParseIntPipe) columnId: number
-    ): Promise<TaskCardResponseDto> {
+        @Param('id', ParseIntPipe) columnId: number,
+    ): Promise<TaskCardDto> {
         const id = req.user.sub;
 
         const card = await this.taskService.create({
             data: dto,
             creatorId: id,
-            columnId
+            columnId,
         });
 
         return card;

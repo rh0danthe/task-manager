@@ -1,13 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column } from '@prisma/client';
 
-export class ColumnResponseDto {
+export class CommentDto {
     @ApiProperty()
     id: number;
 
     @ApiProperty()
-    title: string;
+    content: string;
 
     @ApiProperty()
     creatorId: number;
+
+    @ApiProperty()
+    taskcardId: number;
 }

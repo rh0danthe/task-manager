@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TaskCardCreateRequestDto } from './dto/task-card.create-request.dto';
-import { TaskCardResponseDto } from './dto/task-card.response.dto';
+import { TaskCardDto } from './dto/task-card.dto';
 import { TaskCardUpdateRequestDto } from './dto/task-card.update-request.dto';
 import { mapToTaskCardDto } from './mappers/task-card.mapper';
 import { ColumnService } from 'src/column/column.service';
@@ -12,17 +12,17 @@ export class TaskCardService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly columnService: ColumnService,
-        private readonly userService: UserService
+        private readonly userService: UserService,
     ) {}
 
     async create(params: {
         data: TaskCardCreateRequestDto;
         creatorId: number;
         columnId: number;
-    }): Promise<TaskCardResponseDto> {
+    }): Promise<TaskCardDto> {
         const { data, creatorId, columnId } = params;
 
-        await this.columnService.getById({id: columnId});
+        await this.columnService.assertColumnExists({ id: columnId });
 
         const dbCard = await this.prisma.taskCard.create({
             data: {
@@ -36,9 +36,24 @@ export class TaskCardService {
         return mapToTaskCardDto(dbCard);
     }
 
-    async getById(params: { id: number }): Promise<TaskCardResponseDto> {
+    async assertTaskCardExists(params: { id: number }) {
         const { id } = params;
 
+        const dbCard = await this.prisma.taskCard.findUnique({
+            where: {
+                id,
+            },
+        });
+
+        if (!dbCard) {
+            throw new NotFoundException(
+                `TaskCard with id ${id} does not exist`,
+            );
+        }
+    }
+
+    async getById(params: { id: number }): Promise<TaskCardDto> {
+        const { id } = params;
 
         const dbCard = await this.prisma.taskCard.findUnique({
             where: {
@@ -57,10 +72,10 @@ export class TaskCardService {
 
     async getAllByCreatorId(params: {
         creatorId: number;
-    }): Promise<TaskCardResponseDto[]> {
+    }): Promise<TaskCardDto[]> {
         const { creatorId } = params;
 
-        await this.userService.getById({id: creatorId});
+        await this.userService.assertUserExists({ id: creatorId });
 
         const cards = await this.prisma.taskCard.findMany({
             where: {
@@ -73,10 +88,10 @@ export class TaskCardService {
 
     async getAllByColumnId(params: {
         columnId: number;
-    }): Promise<TaskCardResponseDto[]> {
+    }): Promise<TaskCardDto[]> {
         const { columnId } = params;
 
-        await this.columnService.getById({id: columnId});
+        await this.columnService.assertColumnExists({ id: columnId });
 
         const cards = await this.prisma.taskCard.findMany({
             where: {
@@ -90,10 +105,10 @@ export class TaskCardService {
     async update(params: {
         data: TaskCardUpdateRequestDto;
         id: number;
-    }): Promise<TaskCardResponseDto> {
+    }): Promise<TaskCardDto> {
         const { data, id } = params;
 
-        await this.getById({ id });
+        await this.assertTaskCardExists({ id });
 
         const updatedCard = await this.prisma.taskCard.update({
             where: {
@@ -108,10 +123,10 @@ export class TaskCardService {
         return mapToTaskCardDto(updatedCard);
     }
 
-    async delete(params: { id: number }): Promise<TaskCardResponseDto> {
+    async delete(params: { id: number }): Promise<TaskCardDto> {
         const { id } = params;
 
-        await this.getById({ id });
+        await this.assertTaskCardExists({ id });
 
         const deletedCard = await this.prisma.taskCard.delete({
             where: {
@@ -125,7 +140,7 @@ export class TaskCardService {
     async takeCard(params: { id: number; userId: number }): Promise<Boolean> {
         const { id, userId } = params;
 
-        await this.getById({ id });
+        await this.assertTaskCardExists({ id });
 
         const result = await this.prisma.taskCard.update({
             where: { id },
@@ -144,7 +159,7 @@ export class TaskCardService {
     async giveUpCard(params: { id: number; userId: number }): Promise<boolean> {
         const { id, userId } = params;
 
-        await this.getById({ id });
+        await this.assertTaskCardExists({ id });
 
         const result = await this.prisma.taskCard.update({
             where: { id },
@@ -160,10 +175,12 @@ export class TaskCardService {
         return !!result;
     }
 
-    async getCardsByUserExecuting(params: { userId: number }) {
+    async getCardsByUserExecuting(params: {
+        userId: number;
+    }): Promise<TaskCardDto[]> {
         const { userId } = params;
-        
-        await this.userService.getById({ id: userId });
+
+        await this.userService.assertUserExists({ id: userId });
 
         const cards = await this.prisma.taskCard.findMany({
             where: {

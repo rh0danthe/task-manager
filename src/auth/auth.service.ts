@@ -6,11 +6,12 @@ import {
 } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { UserSignInDto } from './dto/user-sign-in.dto';
-import { UserRegisterDto } from './dto/user-register.dto';
-import { UserResponseDto } from '../user/dto/user-response.dto';
+import { UserSignInDto } from './dto/user.sign-in.dto';
+import { UserRegisterDto } from './dto/user.register.dto';
+import { UserDto } from '../user/dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { UserUpdateDto } from './dto/user-update.dto';
+import { TokenDto } from './dto/token.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,9 +20,7 @@ export class AuthService {
         private readonly jwtService: JwtService,
     ) {}
 
-    async register(params: {
-        data: UserRegisterDto;
-    }): Promise<{ access_token: string }> {
+    async register(params: { data: UserRegisterDto }): Promise<TokenDto> {
         const { data } = params;
 
         const dbUser = await this.userService.getByEmailOrReturnNull({
@@ -45,9 +44,7 @@ export class AuthService {
         };
     }
 
-    async signIn(params: {
-        data: UserSignInDto;
-    }): Promise<{ access_token: string }> {
+    async signIn(params: { data: UserSignInDto }): Promise<TokenDto> {
         const { data } = params;
 
         const dbUser = await this.userService.getByEmailOrReturnNull({
@@ -79,7 +76,7 @@ export class AuthService {
     async update(params: {
         id: number;
         data: UserUpdateDto;
-    }): Promise<UserResponseDto> {
+    }): Promise<UserDto> {
         const { data, id } = params;
 
         await this.userService.getById({ id });
@@ -100,8 +97,6 @@ export class AuthService {
             data.password = bcrypt.hashSync(data.password, 10);
         }
 
-        const updatedUser = await this.userService.update({ id, data: data });
-
-        return updatedUser;
+        return this.userService.update({ id, data });
     }
 }

@@ -1,8 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CommentResponseDto {
+export class TaskCardDto {
     @ApiProperty()
     id: number;
+
+    @ApiProperty()
+    title: string;
 
     @ApiProperty()
     content: string;
@@ -11,5 +14,5 @@ export class CommentResponseDto {
     creatorId: number;
 
     @ApiProperty()
-    taskcardId: number;
+    columnId: number;
 }

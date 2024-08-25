@@ -1,4 +1,4 @@
-import { TaskCardResponseDto } from '../dto/task-card.response.dto';
+import { TaskCardDto } from '../dto/task-card.dto';
 import { TaskCardEntity } from '../entity/task-card.entity';
 
 export function mapToTaskCardDto(db: TaskCardEntity) {
@@ -8,5 +8,5 @@ export function mapToTaskCardDto(db: TaskCardEntity) {
         content: db.content,
         creatorId: db.creatorId,
         columnId: db.columnId,
-    } as TaskCardResponseDto;
+    } as TaskCardDto;
 }
