@@ -19,7 +19,7 @@ import { ColumnDto } from './dto/column.dto';
 import { ColumnService } from '../column/column.service';
 import { RightGuardColumn } from '../auth/guard/right.guard.column';
 import { TaskCardDto } from 'src/taskCard/dto/task-card.dto';
-import { TaskCardCreateRequestDto } from 'src/taskCard/dto/task-card.create-request.dto';
+import { TaskCardCreateDto } from 'src/taskCard/dto/task-card.create.dto';
 import { TaskCardService } from 'src/taskCard/task-card.service';
 import { ApiOkArrayResponse } from 'src/common/swagger.utils';
 import { ArrayResponse, mapToArrayResponse } from 'src/common/array.response';
@@ -121,7 +121,7 @@ export class ColumnController {
     @UseGuards(AuthGuard)
     async createTask(
         @Req() req,
-        @Body() dto: TaskCardCreateRequestDto,
+        @Body() dto: TaskCardCreateDto,
         @Param('id', ParseIntPipe) columnId: number,
     ): Promise<TaskCardDto> {
         const id = req.user.sub;

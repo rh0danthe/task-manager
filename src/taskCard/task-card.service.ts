@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { TaskCardCreateRequestDto } from './dto/task-card.create-request.dto';
+import { TaskCardCreateDto } from './dto/task-card.create.dto';
 import { TaskCardDto } from './dto/task-card.dto';
-import { TaskCardUpdateRequestDto } from './dto/task-card.update-request.dto';
+import { TaskCardUpdateDto } from './dto/task-card.update-request.dto';
 import { mapToTaskCardDto } from './mappers/task-card.mapper';
 import { ColumnService } from 'src/column/column.service';
 import { UserService } from 'src/user/user.service';
@@ -16,7 +16,7 @@ export class TaskCardService {
     ) {}
 
     async create(params: {
-        data: TaskCardCreateRequestDto;
+        data: TaskCardCreateDto;
         creatorId: number;
         columnId: number;
     }): Promise<TaskCardDto> {
@@ -103,7 +103,7 @@ export class TaskCardService {
     }
 
     async update(params: {
-        data: TaskCardUpdateRequestDto;
+        data: TaskCardUpdateDto;
         id: number;
     }): Promise<TaskCardDto> {
         const { data, id } = params;

@@ -17,7 +17,7 @@ import { AuthGuard } from '../auth/guard/auth.guard';
 import { TaskCardDto } from './dto/task-card.dto';
 import { TaskCardService } from './task-card.service';
 import { RightGuardTaskCard } from 'src/auth/guard/right.guard.task-card';
-import { TaskCardUpdateRequestDto } from './dto/task-card.update-request.dto';
+import { TaskCardUpdateDto } from './dto/task-card.update-request.dto';
 import { CommentService } from 'src/comment/comment.service';
 import { CommentDto } from 'src/comment/dto/comment.dto';
 import { ApiOkArrayResponse } from 'src/common/swagger.utils';
@@ -133,7 +133,7 @@ export class TaskCardController {
     @UseGuards(AuthGuard, RightGuardTaskCard)
     async update(
         @Param('id', ParseIntPipe) id: number,
-        @Body() dto: TaskCardUpdateRequestDto,
+        @Body() dto: TaskCardUpdateDto,
     ): Promise<TaskCardDto> {
         return this.taskService.update({ data: dto, id });
     }
