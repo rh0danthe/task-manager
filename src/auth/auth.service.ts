@@ -19,7 +19,7 @@ export class AuthService {
 
         const { data } = params;
 
-        const dbUser = await this.userService.getByEmail({ email: data.email });
+        const dbUser = await this.userService.getByEmailOrReturnNull({ email: data.email });
 
         if (!!dbUser) {
             throw new BadRequestException(`User with email ${data.email} already exists`)
@@ -42,7 +42,7 @@ export class AuthService {
     ): Promise<{ access_token: string }> {
         const { data } = params;
 
-        const dbUser = await this.userService.getByEmail({ email: data.email });
+        const dbUser = await this.userService.getByEmailOrReturnNull({ email: data.email });
 
         if (!dbUser) {
             throw new NotFoundException(`User with email ${data.email} does not exist`)

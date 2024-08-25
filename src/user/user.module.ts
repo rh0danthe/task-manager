@@ -2,10 +2,9 @@ import {Module} from "@nestjs/common";
 import {UserService} from "./user.service";
 import {PrismaModule} from "../prisma/prisma.module";
 import {UserController} from "./user.controller";
-import {PrismaService} from "../prisma/prisma.service";
-import {AuthModule} from "../auth/auth.module";
 import {JwtModule} from "@nestjs/jwt";
 import {ConfigModule, ConfigService} from "@nestjs/config";
+import {ColumnModule} from "../column/column.module";
 
 @Module({
     controllers: [UserController],
@@ -18,7 +17,8 @@ import {ConfigModule, ConfigService} from "@nestjs/config";
             secret: config.getOrThrow('JWT_SECRET'),
             signOptions: { expiresIn: '7d' },
         }),
-    }),],
+    }),
+    ColumnModule],
     exports: [UserService]
 })
 export class UserModule {}

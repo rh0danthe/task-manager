@@ -21,28 +21,34 @@ export class UserService {
     }
 
     async getById(params: {id: number}) : Promise<UserResponseDto> {
+        const { id } = params;
+
         const dbUser = await this.prisma.user.findUnique({
             where: {
-                id: params.id,
+                id: id,
             },
         });
         if (!dbUser) {
-            throw new NotFoundException(`User with id ${params.id} does not exist`)
+            throw new NotFoundException(`User with id ${id} does not exist`)
         }
 
         return {name: dbUser.name,
         email: dbUser.email};
     }
 
-    async getByEmail(params: {email: string}) : Promise<User | null> {
+    async getByEmailOrReturnNull(params: {email: string}) : Promise<User | null> {
+        const { email } = params;
+
         const dbUser = await this.prisma.user.findUnique({
             where: {
-                email: params.email,
+                email: email,
             },
         });
+
         if (!dbUser) {
             return null;
         }
+
         return dbUser;
     }
 }

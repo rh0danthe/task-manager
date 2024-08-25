@@ -1,28 +1,17 @@
-import {
-    Controller,
-    Get,
-    Query,
-    Post,
-    Body,
-    Put,
-    Param,
-    Delete,
-    HttpCode,
-    HttpStatus,
-    Req,
-    UseGuards
-} from '@nestjs/common';
+import {Controller, Get, Param, ParseIntPipe, Req, UseGuards} from '@nestjs/common';
 import {UserService} from "./user.service";
 import {ApiBearerAuth, ApiOkResponse, ApiTags} from "@nestjs/swagger";
-import {UserEntity} from "./entity/user.entity";
 import {UserResponseDto} from "./dto/user-response.dto";
-import {AuthGuard} from "../auth/auth.guard";
+import {AuthGuard} from "../auth/guard/auth.guard";
+import {ColumnResponseDto} from "../column/dto/column-response.dto";
+import {ColumnService} from "../column/column.service";
 
 @ApiBearerAuth('JWT-auth')
 @ApiTags("users")
 @Controller('users')
 export class UserController {
-    constructor(private userService: UserService) {}
+    constructor(private readonly userService: UserService,
+                private readonly columnService: ColumnService) {}
 
     @ApiOkResponse({
         type: UserResponseDto
@@ -32,8 +21,16 @@ export class UserController {
     async getMe(@Req() req): Promise<UserResponseDto> {
         const id = req.user.sub;
 
-        const candidate = await this.userService.getById({ id });
+        return this.userService.getById({id});
+    }
 
-        return { ...candidate };
+    @ApiOkResponse({
+        type: ColumnResponseDto
+    })
+    @Get(':userId/columns')
+    @UseGuards(AuthGuard)
+    async getAllColumnsByUser(@Param('userId', ParseIntPipe) userId: number): Promise<ColumnResponseDto[]> {
+
+        return this.columnService.getAllByCreatorId({creatorId: userId});
     }
 }
